@@ -2,71 +2,59 @@
 
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import { z } from "zod";
-import { currentUser } from "@clerk/nextjs/server";
+import { z } from "zod/v4";
+import { clerkClient, currentUser } from "@clerk/nextjs/server";
 import { getCountries } from "@/utils/getCountries";
 
 const { countries, months, years } = getCountries();
 
 const schemaUserBankCard = z.object({
-  country: z.string().refine((val) => countries.includes(val), {
-    message: "Please select a valid country",
+  country: z.enum(countries, {
+    message: "Please select a country",
   }),
-  firstName: z.string().min(2, { message: "Please enter first name" }),
-  lastName: z.string().min(2, { message: "Please enter last name" }),
-  cardNumber: z
-    .string()
-    .length(16, { message: "Wrong card number" })
-    .regex(/^\d+$/, { message: "Card number must be digits only" }),
-  month: z.string().refine((val) => months.includes(val), {
-    message: "Please select a valid month",
+  firstName: z.string().min(2, { message: "Please enter name" }),
+  lastName: z.string().min(2, { message: "Please enter name" }),
+  cardNumber: z.string().min(16).max(16, { message: "Card number must be 16 digits" }).regex(/^\d{16}$/, "Card number must be 16 digits"),
+  months: z.enum(months, {
+    message: "Please select a month",
   }),
-  year: z.string().refine((val) => years.includes(val), {
-    message: "Please select a valid year",
+  years: z.enum(years, {
+    message: "Please select a year",
   }),
-  cvc: z
-    .string()
-    .length(3, { message: "Enter CVC number" })
-    .regex(/^\d+$/, { message: "CVC must be digits" }),
+  cvc: z.string().length(3, { message: "Enter cvc number" }).regex(/^\d{3}$/, "CVV must be 3 or 4 digits"),
 });
 
-export const createCard = async (_: any, formData: FormData) => {
+export const createCard = async (previous: unknown, formData: FormData) => {
   const user = await currentUser();
+
   if (!user?.id) {
-    return { message: "User not authenticated" };
+    return;
   }
 
-  const validated = schemaUserBankCard.safeParse({
+  const validateFormData = schemaUserBankCard.safeParse({
     country: formData.get("country"),
     firstName: formData.get("firstName"),
     lastName: formData.get("lastName"),
-    cardNumber: formData.get("cardNumber")?.toString().replace(/-/g, ""),
-    month: formData.get("month"),
-    year: formData.get("year"),
+    cardNumber: formData.get("cardNumber"),
+    months: formData.get("months"),
+    years: formData.get("years"),
     cvc: formData.get("cvc"),
   });
 
-  if (!validated.success) {
-    const fieldErrors = validated.error.flatten().fieldErrors;
-
+  if (!validateFormData.success) {
     return {
-      ZodError: {
-        country: fieldErrors.country || [],
-        firstName: fieldErrors.firstName || "",
-        lastName: fieldErrors.lastName || "",
-        cardNumber: fieldErrors.cardNumber || "",
-        month: fieldErrors.month || [],
-        year: fieldErrors.year || [],
-        cvc: fieldErrors.cvc || [],
-      },
-      message: "Missing or invalid fields",
+      ZodError: validateFormData.error.flatten().fieldErrors,
+      message: "Missing fields, failed to make add card",
     };
   }
 
-  const { country, firstName, lastName, cardNumber, month, year, cvc } =
-    validated.data;
-
-  const expiryDate = new Date(`${year}-${month}-01`);
+  const country = formData.get("country") as string;
+  const firstName = formData.get("firstName") as string;
+  const lastName = formData.get("lastName") as string;
+  const cardNumber = formData.get("cardNumber") as string;
+  const months = formData.get("months");
+  const years = formData.get("years");
+  const cvc = (formData.get("cvc") as string) ?? "";
 
   await prisma.bankCard.create({
     data: {
@@ -75,10 +63,13 @@ export const createCard = async (_: any, formData: FormData) => {
       firstName,
       lastName,
       cardNumber,
-      expiryDate,
+      expiryDate: new Date(Number(years), Number(months)),
       cvc,
     },
   });
 
-  redirect("/");
+  const client = await clerkClient();
+  await client.users.updateUserMetadata(user.id, {
+    publicMetadata: { isBankCardCompleted: true },
+  });
 };

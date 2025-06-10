@@ -16,8 +16,8 @@ export default clerkMiddleware(async (auth, req) => {
       return NextResponse.redirect(url);
     }
     if (!isCardCompleted) {
-      const cardUrl = new URL("/card-profile", req.cardUrl);
-      return NextResponse.redirect(cardUrl);
+      const url = new URL("/card-profile", req.url);
+      return NextResponse.redirect(url);
     }
   }
 

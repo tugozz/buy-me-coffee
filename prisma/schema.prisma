@@ -22,7 +22,7 @@ model BankCard {
   lastName String
   cardNumber String
   expiryDate DateTime
-  userId String 
+  userId String @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   cvc String

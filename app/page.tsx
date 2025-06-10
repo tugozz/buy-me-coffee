@@ -14,18 +14,7 @@ const Homepage = () => {
 
   console.log(user);
 
-  return (
-    <div>
-      {" "}
-      {user.username}
-      <div className="flex flex-col">
-        <a href="">Home</a>
-        <a href="">Explore</a>
-        <a href="">View Page</a>
-        <a href="">Account Settings</a>
-      </div>
-    </div>
-  );
+  return <div>Hello {user.username}</div>;
 };
 
 export default Homepage;
