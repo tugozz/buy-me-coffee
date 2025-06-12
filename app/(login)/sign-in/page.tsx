@@ -1,16 +1,16 @@
 "use client";
 
-import { SignIn } from "@clerk/nextjs";
 import Image from "next/legacy/image";
-import { Button } from "@/components/ui/button";
 import { Coffee } from "lucide-react";
+import { SignIn } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
-const SignUpPage = () => {
+const SignInPage = () => {
   const { push } = useRouter();
   return (
     <div className="flex w-full">
-      <div className="w-1/2 bg-[#FBBF24]">
+      <div className="w-1/2 bg-[#FBBF24] h-screen">
         <div className="pl-10 pt-5">
           <Button
             className="flex gap-2 font-bold bg-[#FBBF24] border-none hover:bg-[#FBBF24] text-black"
@@ -36,8 +36,8 @@ const SignUpPage = () => {
           </h1>
         </div>
       </div>
-      <div className="w-1/2">
-        <div className="flex justify-end pr-10 pt-5">
+      <div className="w-1/2 h-screen">
+        <div className="flex justify-end pt-5 pr-10">
           <Button
             variant="ghost"
             onClick={() => (window.location.href = "/sign-up")}
@@ -45,7 +45,7 @@ const SignUpPage = () => {
             Sign Up
           </Button>
         </div>
-        <div className="flex items-center justify-center pb-20">
+        <div className="flex items-center justify-center mt-40">
           <SignIn routing="hash" />
         </div>
       </div>
@@ -53,4 +53,4 @@ const SignUpPage = () => {
   );
 };
 
-export default SignUpPage;
+export default SignInPage;

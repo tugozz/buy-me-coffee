@@ -1,10 +1,9 @@
 "use server";
 
-import prisma from "@/lib/prisma";
-import { redirect } from "next/navigation";
 import { z } from "zod/v4";
-import { clerkClient, currentUser } from "@clerk/nextjs/server";
+import prisma from "@/lib/prisma";
 import { getCountries } from "@/utils/getCountries";
+import { clerkClient, currentUser } from "@clerk/nextjs/server";
 
 const { countries, months, years } = getCountries();
 

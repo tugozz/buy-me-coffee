@@ -1,8 +1,8 @@
 import { type Metadata } from "next";
 import { ClerkProvider, SignedIn, UserButton } from "@clerk/nextjs";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
 import { Coffee } from "lucide-react";
+import { SideBar } from "@/components";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,27 +25,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider
-      signInUrl="/sign-in"
-      signUpUrl="/sign-up"
-      // afterSignInUrl="/"
-      // afterSignUpUrl="/profile"
-    >
+    <ClerkProvider signInUrl="/sign-in" signUpUrl="/sign-up">
       <html lang="en">
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
-          <SignedIn>
-            <header className="flex justify-between items-center">
-              <div className="flex justify-start items-center p-4 gap-2 h-16 text-[16px] font-bold">
-                <Coffee /> Buy Me Coffee
-              </div>
-              <div className="flex justify-end items-center p-4 gap-2 h-16 ">
-                <UserButton />
-              </div>
-            </header>
-          </SignedIn>
-          <div className="flex justify-center items-center">{children}</div>
+          <div className="flex w-full px-20 gap-30">
+            <SideBar />
+            <div>{children}</div>
+          </div>
         </body>
       </html>
     </ClerkProvider>

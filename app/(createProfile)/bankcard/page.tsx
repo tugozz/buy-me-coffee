@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { useActionState, useState, useTransition } from "react";
 import { getCountries } from "@/utils/getCountries";
-import { ZodErrors } from "@/app/ZodError";
+import { ZodErrors } from "@/app/(createProfile)/ZodError";
 import { useRouter } from "next/navigation";
 
 type ProfileStepProps = {
@@ -169,7 +169,7 @@ export default function NewCard({ previousStep }: ProfileStepProps) {
               value={valueCvv}
               placeholder="CVC"
               inputMode="numeric"
-              maxLength={4}
+              maxLength={3}
             />
             <ZodErrors error={formState?.ZodError?.cvc} />
           </div>
